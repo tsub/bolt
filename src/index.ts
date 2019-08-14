@@ -18,9 +18,9 @@ export {
 export { ErrorCode } from './errors';
 
 export {
-  default as ExpressReceiver,
-  ExpressReceiverOptions,
-} from './ExpressReceiver';
+  default as ServerlessReceiver,
+  ServerlessReceiverOptions,
+} from './ServerlessReceiver';
 
 export * from './middleware/builtin';
 export * from './types';

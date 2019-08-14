@@ -1,7 +1,7 @@
 import util from 'util';
 import { WebClient, ChatPostMessageArguments, addAppMetadata } from '@slack/web-api';
 import { Logger, LogLevel, ConsoleLogger } from '@slack/logger';
-import ExpressReceiver, { ExpressReceiverOptions } from './ExpressReceiver';
+import ServerlessReceiver, { ServerlessReceiverOptions } from './ServerlessReceiver';
 import {
   ignoreSelf as ignoreSelfMiddleware,
   onlyActions,
@@ -39,8 +39,8 @@ const packageJson = require('../package.json'); // tslint:disable-line:no-requir
 
 /** App initialization options */
 export interface AppOptions {
-  signingSecret?: ExpressReceiverOptions['signingSecret'];
-  endpoints?: ExpressReceiverOptions['endpoints'];
+  signingSecret?: ServerlessReceiverOptions['signingSecret'];
+  endpoints?: ServerlessReceiverOptions['endpoints'];
   convoStore?: ConversationStore | false;
   token?: AuthorizeResult['botToken']; // either token or authorize
   botId?: AuthorizeResult['botId']; // only used when authorize is not defined, shortcut for fetching
@@ -158,7 +158,7 @@ export default class App {
 
     // Check for required arguments of ExpressReceiver
     if (signingSecret !== undefined) {
-      this.receiver = new ExpressReceiver({ signingSecret, logger, endpoints });
+      this.receiver = new ServerlessReceiver({ signingSecret, logger, endpoints });
     } else if (receiver === undefined) {
       // Check for custom receiver
       throw errorWithCode(
@@ -339,10 +339,10 @@ export default class App {
     // Factory for say() utility
     const createSay = (channelId: string): SayFn => {
       const token = context.botToken !== undefined ? context.botToken : context.userToken;
-      return (message: Parameters<SayFn>[0]) => {
+      return async (message: Parameters<SayFn>[0]) => {
         const postMessageArguments: ChatPostMessageArguments = (typeof message === 'string') ?
           { token, text: message, channel: channelId } : { ...message, token, channel: channelId };
-        this.client.chat.postMessage(postMessageArguments)
+        await this.client.chat.postMessage(postMessageArguments)
           .catch(error => this.onGlobalError(error));
       };
     };
@@ -441,7 +441,7 @@ export default class App {
   /**
    * Global error handler. The final destination for all errors (hopefully).
    */
-  private onGlobalError(error: Error): void {
+  private async onGlobalError(error: Error): Promise<void> {
     this.errorHandler(asCodedError(error));
   }
 

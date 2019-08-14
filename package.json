@@ -1,8 +1,7 @@
 {
-  "name": "@slack/bolt",
+  "name": "@deslee/bolt",
   "version": "1.2.0",
-  "description": "A framework for building Slack apps, fast.",
-  "author": "Slack Technologies, Inc.",
+  "description": "A fork of Bolt",
   "license": "MIT",
   "keywords": [
     "slack",
@@ -32,19 +31,16 @@
     "test": "nyc mocha --config .mocharc.json \"src/**/*.spec.ts\"",
     "coverage": "codecov"
   },
-  "repository": "slackapi/bolt",
-  "homepage": "https://slack.dev/bolt",
-  "bugs": {
-    "url": "https://github.com/slackapi/bolt/issues"
-  },
+  "repository": "deslee/bolt-sls",
   "dependencies": {
     "@slack/logger": "^1.0.0",
     "@slack/types": "^1.0.0",
     "@slack/web-api": "^5.0.0",
-    "@types/express": "^4.16.1",
+    "@types/micro": "^7.3.3",
     "@types/node": ">=10",
     "axios": "^0.18.1",
-    "express": "^4.16.4",
+    "emittery": "^0.4.1",
+    "micro": "^9.3.4",
     "please-upgrade-node": "^3.1.1",
     "raw-body": "^2.3.3",
     "tsscmp": "^1.0.6"
