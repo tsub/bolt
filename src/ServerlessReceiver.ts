@@ -36,21 +36,9 @@ export default class ServerlessReceiver implements Receiver {
     signingSecret = '',
     logger = new ConsoleLogger(),
   }: ServerlessReceiverOptions) {
-    // const expressMiddleware: RequestHandler[] = [
-    //   verifySignatureAndParseBody(logger, signingSecret),
-    //   respondToSslCheck,
-    //   respondToUrlVerification,
-    //   this.requestHandler.bind(this),
-    // ];
-    
     this.signingSecret = signingSecret;
     this.logger = logger;
     this.emitter = new Emittery.Typed<EventDataMap>()
-
-    //const endpointList: string[] = typeof endpoints === 'string' ? [endpoints] : Object.values(endpoints);
-    // for (const endpoint of endpointList) {
-    //   this.app.post(endpoint, ...expressMiddleware);
-    // }
   }
 
   async start(..._args: any[]): Promise<unknown> {
@@ -112,7 +100,9 @@ export default class ServerlessReceiver implements Receiver {
         };
       }
 
+      this.logger.info("emitting message");
       await this.emitter.emit('message', event);
+      this.logger.info("done emitting message");
 
       clearTimeout(timer)
       res.statusCode = 200;

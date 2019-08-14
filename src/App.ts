@@ -409,33 +409,40 @@ export default class App {
       ack();
     }
 
+    this.logger.info("Begin processing")
+    this.logger.info("Processing global middleware")
     // Dispatch event through global middleware
-    processMiddleware(
-      listenerArgs as AnyMiddlewareArgs,
+    await processMiddleware(
+      listenerArgs as AnyMiddlewareArgs,  
       this.middleware,
-      (globalProcessedContext: Context, globalProcessedArgs: AnyMiddlewareArgs, startGlobalBubble) => {
-        this.listeners.forEach((listenerMiddleware) => {
-          // Dispatch event through all listeners
-          processMiddleware(
-            globalProcessedArgs,
-            listenerMiddleware,
-            (_listenerProcessedContext, _listenerProcessedArgs, startListenerBubble) => {
-              startListenerBubble();
-            },
-            (error) => {
-              startGlobalBubble(error);
-            },
-            globalProcessedContext,
-          );
-        });
+      async (globalProcessedContext: Context, globalProcessedArgs: AnyMiddlewareArgs, startGlobalBubble) => {
+        // Dispatch event through all listeners
+        this.logger.info("Done processing global middleware. Dispatching event through listeners")
+        await Promise.all(
+          this.listeners.map(async (listenerMiddleware) => {
+            await processMiddleware(
+              globalProcessedArgs,
+              listenerMiddleware,
+              async (_listenerProcessedContext, _listenerProcessedArgs, startListenerBubble) => {
+                await startListenerBubble();
+              },
+              async (error) => {
+                await startGlobalBubble(error);
+              },
+              globalProcessedContext,
+            );
+          })
+        )
+        this.logger.info("Done dispatching event through listeners")
       },
-      (globalError?: CodedError | Error) => {
+      async (globalError?: CodedError | Error) => {
         if (globalError !== undefined) {
-          this.onGlobalError(globalError);
+          await this.onGlobalError(globalError);
         }
       },
       context,
     );
+    this.logger.info("Done processing")
   }
 
   /**
