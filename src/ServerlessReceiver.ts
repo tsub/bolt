@@ -113,7 +113,7 @@ export default class ServerlessReceiver implements Receiver {
         res.end(ackResponse);
       } else {
         res.setHeader('Content-Type', 'application/json')
-        res.end(ackResponse);
+        res.end(JSON.stringify(ackResponse));
       }
     } catch (err) {
       this.logger.error(err);
